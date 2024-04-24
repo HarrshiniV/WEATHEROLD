@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Weather App</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="card">
+<div class="search">
+<input type="text" placeholder="Enter city name" spellcheck="false">
+<button><img src="search.jpg"></button>
+</div>
+<div class="error">
+<p>Invalid city name</p>
+</div>
+<div class="weather">
+<img src="" class="weather-icon">
+<h1 class="temp">22°C</h1>
+<h2 class="city">New York</h2>
+<div class="details">
+<div class="col">
+<img src="humidity.png">
+<div>
+<p class="humidity">50%</p>
+<p>Humidity</p>
+</div>
+</div>
+<div class="col">
+<img src="wind.png">
+<div>
+<p class="wind">15 km/hr</p>
+<p>Wind Speed</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<script>
+const apiKey = "4d846730944ef59679623a0e96f1e2f5";
+const apiUrl = "https://api.openweathermap.org/data/2.5/weather?units=metric&q=";
+const searchBox = document.querySelector(".search input");
+const searchBtn = document.querySelector(".search button");
+const weatherIcon = document.querySelector(".weather-icon");
+const errorDisplay = document.querySelector(".error");
+const weatherDisplay = document.querySelector(".weather");
+
+async function fetchWeatherData(city) {
+  try {
+    const response = await fetch(apiUrl + city + "&appid=" + apiKey);
+    const data = await response.json();
+    if (response.status === 200) {
+      displayWeatherData(data);
+      errorDisplay.style.display = "none";
+    } else {
+      throw new Error("City not found");
+    }
+  } catch (error) {
+    console.error("Error fetching weather data:", error);
+    errorDisplay.style.display = "block";
+    weatherDisplay.style.display = "none";
+  }
+}
+
+function displayWeatherData(data) {
+  weatherIcon.src = getWeatherIcon(data.weather[0].main);
+  document.querySelector(".city").textContent = data.name;
+  document.querySelector(".temp").textContent = Math.round(data.main.temp) + "°C";
+  document.querySelector(".humidity").textContent = data.main.humidity + "%";
+  document.querySelector(".wind").textContent = data.wind.speed + " m/s"; // Changed to meters per second
+  weatherDisplay.style.display = "block";
+}
+
+function getWeatherIcon(weatherMain) {
+  switch (weatherMain) {
+    case "Clouds":
+      return "cloudy.jpeg";
+    case "Clear":
+      return "clear.png";
+    case "Rain":
+      return "rainy.jpg";
+    case "Drizzle":
+      return "drizzle.jpg";
+    case "Mist":
+      return "mist.jpg";
+    default:
+      return "";
+  }
+}
+
+searchBtn.addEventListener("click", () => {
+  const city = searchBox.value.trim();
+  if (city) {
+    fetchWeatherData(city);
+  } else {
+    alert("Please enter a city name");
+  }
+});
+</script>
+</body>
+</html>
